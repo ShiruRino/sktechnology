@@ -109,11 +109,11 @@
                         <div class="fl-wrap client-list">
                             <ul class="">
                                 @if($clientGalleries->count() > 0)
-                                    <!-- Loop Logo Client Dinamis -->
+                                    <!-- Loop Logo Client Dinamis (Hapus blok fallback lama) -->
                                     @foreach($clientGalleries as $client)
                                         <li>
                                             <a href="{{ $client->link ?? '#' }}" target="_blank">
-                                                <img src="{{ asset('storage/' . $client->image) }}" alt="Strategic Partner">
+                                                <img src="{{ str_starts_with($client->image, 'images/') ? asset($client->image) : asset('storage/' . $client->image) }}" alt="Strategic Partner">
                                             </a>
                                         </li>
                                     @endforeach

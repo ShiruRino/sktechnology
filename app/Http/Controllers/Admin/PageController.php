@@ -20,6 +20,23 @@ class PageController extends Controller
     // Menyimpan perubahan konten
     public function update(Request $request, $slug)
     {
+        $page = Page::where('slug', $slug)->firstOrFail();
+
+        // --- TAMBAHAN: Logika untuk memuat gambar default ke database ---
+        if ($request->has('load_defaults')) {
+            if ($request->load_defaults == 'slider_timor') {
+                PageGallery::firstOrCreate(['page_id' => $page->id, 'type' => 'slider', 'image' => 'images/folio/timor2.jpg']);
+                PageGallery::firstOrCreate(['page_id' => $page->id, 'type' => 'slider', 'image' => 'images/folio/icon_timor.jpg']);
+            } elseif ($request->load_defaults == 'client_overview') {
+                $clients = ['ajari.png', 'hydsoft.png', 'tech5.png', 'pat.png', 'interbio.png', 'bright.png'];
+                foreach ($clients as $client) {
+                    PageGallery::firstOrCreate(['page_id' => $page->id, 'type' => 'client', 'image' => 'images/clients/' . $client], ['link' => '#']);
+                }
+            }
+            return back()->with('success', 'Default template images have been loaded into the database!');
+        }
+        // ---------------------------------------------------------------
+
         $request->validate([
             'content' => 'required',
             'image'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048', 
@@ -75,24 +92,20 @@ class PageController extends Controller
                 ]);
             }
         }
-        if ($request->has('client_links')) {
-            foreach ($request->client_links as $id => $link) {
-                $gallery = PageGallery::find($id);
-                if ($gallery) {
-                    // Jika dikosongkan, kembalikan ke '#'
-                    $gallery->update(['link' => $link ? $link : '#']);
-                }
-            }
-        }
 
         return back()->with('success', 'Content updated successfully!');
     }
 
-    // Fungsi hapus ini otomatis berlaku untuk background, slider, maupun client!
+    // Fungsi baru untuk menghapus 1 foto dari gallery (berlaku untuk background & slider)
     public function deleteGallery($id)
     {
         $gallery = PageGallery::findOrFail($id);
-        Storage::disk('public')->delete($gallery->image);
+        
+        // Pastikan JANGAN menghapus file asli bawaan template dari server storage
+        if (!str_starts_with($gallery->image, 'images/')) {
+            Storage::disk('public')->delete($gallery->image);
+        }
+        
         $gallery->delete();
 
         return back()->with('success', 'Image removed successfully!');

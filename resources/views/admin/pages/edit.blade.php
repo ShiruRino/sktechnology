@@ -66,35 +66,31 @@
                 <!-- 2A. Form Upload Multiple Image (KHUSUS TIMOR LESTE - SLIDER) -->
                 @if($page->slug == 'timor-leste')
                 <div class="form-group mb-4 p-3" style="border: 1px dashed #ccc; border-radius: 5px; background-color: #f9f9f9;">
-                    <label>Content Slider Gallery (Carousel Images)</label>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="m-0">Content Slider Gallery (Carousel Images)</label>
+                        <!-- Tombol Panggil Default ke DB -->
+                        <button type="submit" name="load_defaults" value="slider_timor" class="btn btn-xs btn-outline-primary" formnovalidate><i class="fas fa-download"></i> Load Template Defaults to DB</button>
+                    </div>
                     <p class="text-muted" style="margin-bottom: 5px;"><small>You can select multiple images at once to update the carousel slider.</small></p>
                     
-                    <!-- Input dengan array name="galleries[]" dan atribut "multiple" -->
                     <input type="file" name="galleries[]" id="galleryInput" class="form-control" multiple>
-                    
                     <div id="newGalleryPreviews" class="row mt-3"></div>
                     
-                    <label class="mt-4">Images Currently Displayed on Website:</label>
+                    <label class="mt-4">Images Currently in Database:</label>
                     <div class="row mt-2">
-                        @if($sliderGalleries && $sliderGalleries->count() > 0)
-                            @foreach($sliderGalleries as $gallery)
-                                <div class="col-md-2 col-sm-4 gallery-item text-center">
-                                    <img src="{{ asset('storage/' . $gallery->image) }}" alt="Carousel Image">
-                                    <a href="#" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this image?')) document.getElementById('delete-gallery-{{ $gallery->id }}').submit();" class="btn btn-sm btn-danger mt-1 btn-block">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </a>
-                                </div>
-                            @endforeach
-                        @else
+                        @forelse($sliderGalleries as $gallery)
                             <div class="col-md-2 col-sm-4 gallery-item text-center">
-                                <img src="{{ asset('images/folio/timor2.jpg') }}" alt="Default" style="opacity: 0.8;">
-                                <span class="badge badge-secondary new-badge">Default</span>
+                                <!-- Deteksi otomatis apakah ini gambar default (images/) atau upload baru (storage/) -->
+                                <img src="{{ str_starts_with($gallery->image, 'images/') ? asset($gallery->image) : asset('storage/' . $gallery->image) }}" alt="Carousel Image">
+                                <a href="#" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this image?')) document.getElementById('delete-gallery-{{ $gallery->id }}').submit();" class="btn btn-sm btn-danger mt-1 btn-block">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
                             </div>
-                            <div class="col-md-2 col-sm-4 gallery-item text-center">
-                                <img src="{{ asset('images/folio/icon_timor.jpg') }}" alt="Default" style="opacity: 0.8;">
-                                <span class="badge badge-secondary new-badge">Default</span>
+                        @empty
+                            <div class="col-12 mt-2">
+                                <p class="text-muted"><small><i class="fas fa-info-circle"></i> No slider images in database. Click "Load Template Defaults to DB" above to import the default images.</small></p>
                             </div>
-                        @endif
+                        @endforelse
                     </div>
                 </div>
                 <hr>
@@ -103,61 +99,36 @@
                 <!-- 2B. Form Upload Multiple Image (KHUSUS COMPANY OVERVIEW - PARTNERS) -->
                 @if($page->slug == 'company-overview')
                 <div class="form-group mb-4 p-3" style="border: 1px dashed #17a2b8; border-radius: 5px; background-color: #f4fbfd;">
-                    <label class="text-info"><i class="fas fa-handshake"></i> Strategic Partners / Clients Logos</label>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="text-info m-0"><i class="fas fa-handshake"></i> Strategic Partners / Clients Logos</label>
+                        <!-- Tombol Panggil Default ke DB -->
+                        <button type="submit" name="load_defaults" value="client_overview" class="btn btn-xs btn-outline-info" formnovalidate><i class="fas fa-download"></i> Load Default Logos to DB</button>
+                    </div>
                     <p class="text-muted" style="margin-bottom: 5px;"><small>Select multiple logo images. After uploading, you can add a website link (URL) for each partner.</small></p>
                     
-                    <!-- Input name="clients[]" khusus untuk partner -->
                     <input type="file" name="clients[]" id="clientInput" class="form-control" multiple>
-                    
                     <div id="newClientPreviews" class="row mt-3"></div>
                     
-                    <label class="mt-4">Logos & Links Currently Displayed:</label>
+                    <label class="mt-4">Logos & Links Currently in Database:</label>
                     <div class="row mt-2">
-                        @if($clientGalleries && $clientGalleries->count() > 0)
-                            @foreach($clientGalleries as $gallery)
-                                <div class="col-md-2 col-sm-3 gallery-item client-item">
-                                    <div class="client-wrapper text-center">
-                                        <img src="{{ asset('storage/' . $gallery->image) }}" alt="Client Logo">
-                                        
-                                        <!-- INPUT URL KHUSUS CLIENT (Default # jika kosong) -->
-                                        <input type="text" name="client_links[{{ $gallery->id }}]" class="form-control form-control-sm mt-2 mb-2" value="{{ $gallery->link ?? '#' }}" placeholder="https://...">
-                                        
-                                        <a href="#" onclick="event.preventDefault(); if(confirm('Remove this partner logo?')) document.getElementById('delete-gallery-{{ $gallery->id }}').submit();" class="btn btn-sm btn-danger btn-block">
-                                            <i class="fas fa-trash"></i> Remove
-                                        </a>
-                                    </div>
+                        @forelse($clientGalleries as $gallery)
+                            <div class="col-md-2 col-sm-3 gallery-item client-item">
+                                <div class="client-wrapper text-center">
+                                    <img src="{{ str_starts_with($gallery->image, 'images/') ? asset($gallery->image) : asset('storage/' . $gallery->image) }}" alt="Client Logo">
+                                    
+                                    <!-- INPUT URL KHUSUS CLIENT (Default # jika kosong) -->
+                                    <input type="text" name="client_links[{{ $gallery->id }}]" class="form-control form-control-sm mt-2 mb-2" value="{{ $gallery->link ?? '#' }}" placeholder="https://...">
+                                    
+                                    <a href="#" onclick="event.preventDefault(); if(confirm('Remove this partner logo?')) document.getElementById('delete-gallery-{{ $gallery->id }}').submit();" class="btn btn-sm btn-danger btn-block">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </a>
                                 </div>
-                            @endforeach
-                        @else
-                            <!-- Fallback Logo Default jika kosong -->
-                            <div class="col-md-2 col-sm-3 gallery-item client-item text-center">
-                                <img src="{{ asset('images/clients/ajari.png') }}" alt="Default" style="opacity: 0.7;">
-                                <span class="badge badge-secondary new-badge">Default</span>
                             </div>
-                            <div class="col-md-2 col-sm-3 gallery-item client-item text-center">
-                                <img src="{{ asset('images/clients/hydsoft.png') }}" alt="Default" style="opacity: 0.7;">
-                                <span class="badge badge-secondary new-badge">Default</span>
-                            </div>
-                            <div class="col-md-2 col-sm-3 gallery-item client-item text-center">
-                                <img src="{{ asset('images/clients/tech5.png') }}" alt="Default" style="opacity: 0.7;">
-                                <span class="badge badge-secondary new-badge">Default</span>
-                            </div>
-                            <div class="col-md-2 col-sm-3 gallery-item client-item text-center">
-                                <img src="{{ asset('images/clients/pat.png') }}" alt="Default" style="opacity: 0.7;">
-                                <span class="badge badge-secondary new-badge">Default</span>
-                            </div>
-                            <div class="col-md-2 col-sm-3 gallery-item client-item text-center">
-                                <img src="{{ asset('images/clients/interbio.png') }}" alt="Default" style="opacity: 0.7;">
-                                <span class="badge badge-secondary new-badge">Default</span>
-                            </div>
-                            <div class="col-md-2 col-sm-3 gallery-item client-item text-center">
-                                <img src="{{ asset('images/clients/bright.png') }}" alt="Default" style="opacity: 0.7;">
-                                <span class="badge badge-secondary new-badge">Default</span>
-                            </div>
+                        @empty
                             <div class="col-12 mt-2">
-                                <p class="text-muted"><small><i class="fas fa-info-circle"></i> No custom logos uploaded. Default template logos are currently displayed on the website.</small></p>
+                                <p class="text-muted"><small><i class="fas fa-info-circle"></i> No custom logos in database. Click "Load Default Logos to DB" above to import them.</small></p>
                             </div>
-                        @endif
+                        @endforelse
                     </div>
                 </div>
                 <hr>
@@ -206,7 +177,6 @@
                 ]
             });
 
-            // Preview Background Image
             $('#imageInput').on('change', function(event) {
                 const file = event.target.files[0];
                 if (file) {
@@ -216,7 +186,6 @@
                 }
             });
 
-            // Preview Multiple Gallery Images (Slider)
             $('#galleryInput').on('change', function(e) {
                 const files = e.target.files;
                 const previewContainer = $('#newGalleryPreviews');
@@ -236,7 +205,6 @@
                 }
             });
 
-            // Preview Multiple Client Logos (Partners)
             $('#clientInput').on('change', function(e) {
                 const files = e.target.files;
                 const previewContainer = $('#newClientPreviews');

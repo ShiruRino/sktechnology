@@ -2,8 +2,9 @@
 
 @section('content')
     @php
-        // Filter relasi galleries khusus untuk tipe 'background'
+        // Filter relasi galleries berdasarkan tipe
         $bgGallery = isset($page) ? $page->galleries->where('type', 'background')->first() : null;
+        $clientGalleries = isset($page) ? $page->galleries->where('type', 'client') : collect([]);
         
         // Atur default image jika admin belum mengupload background
         $bgImg = asset('images/bg/festival.jpg'); 
@@ -14,9 +15,7 @@
 
     <div class="content"  data-pagetitle="about me">
         <div class="page-scroll-nav">
-            <ul>
-                
-            </ul>
+            <ul></ul>
             <nav class="scroll-init page-scroll-nav_wrap">
                 <ul class="no-list-style init_hidden_filter">
                     <li><a class="scroll-link fbgs act-sec" data-bgtext="01"><span>info@sktechnology.com</span></a></li>
@@ -26,13 +25,9 @@
         </div>
         <div class="hero-section-dec color-bg">
             <div class="progress-indicator">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                    viewBox="-1 -1 34 34">
-                    <circle cx="16" cy="16" r="15.9155"
-                        class="progress-bar__background" />
-                    <circle cx="16" cy="16" r="15.9155"
-                        class="progress-bar__progress 
-                        js-progress-bar" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 34 34">
+                    <circle cx="16" cy="16" r="15.9155" class="progress-bar__background" />
+                    <circle cx="16" cy="16" r="15.9155" class="progress-bar__progress js-progress-bar" />
                 </svg>
             </div>
         </div>
@@ -43,10 +38,10 @@
                     <div class="slideshow-container_wrap fl-wrap full-height">
                         <div class="swiper-container">
                             <div class="swiper-wrapper">
-                                <!-- Background Image Dinamis diaplikasikan ke semua slide -->
+                                <!-- Background Image Dinamis -->
                                 <div class="swiper-slide">
                                     <div class="ms-item_fs fl-wrap">
-                                        <div class="bg par-elem"  data-bg="{{ $bgImg }}"  ></div>
+                                        <div class="bg par-elem"  data-bg="{{ $bgImg }}"></div>
                                     </div>
                                 </div>
                                 <div class="swiper-slide ">
@@ -93,17 +88,14 @@
                             <div class="col-sm-12">
                                 <div class="main-about fl-wrap">
                                     <h2>Innovative solutions to boost <br><span> your creative </span>  projects</h2>
-                                    
-                                    <!-- Ini memanggil teks dinamis dari database -->
+                                    <!-- Teks dinamis dari database -->
                                     {!! $page->content !!}
-                                    
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="section-number"> <span>0</span>1. </div>
                 </section>
-                <div class="section-separator fl-wrap"><span></span></div>
                 
                 <div class="section-separator fl-wrap"><span></span></div>
                 
@@ -116,12 +108,20 @@
                         
                         <div class="fl-wrap client-list">
                             <ul class="">
-                                <li><a href="#" target="_blank"><img src="{{ asset('images/clients/ajari.png') }}" alt=""></a></li>
-                                <li><a href="#" target="_blank"><img src="{{ asset('images/clients/hydsoft.png') }}" alt=""></a></li>
-                                <li><a href="#" target="_blank"><img src="{{ asset('images/clients/tech5.png') }}" alt=""></a></li>
-                                <li><a href="#" target="_blank"><img src="{{ asset('images/clients/pat.png') }}" alt=""></a></li>
-                                <li><a href="#" target="_blank"><img src="{{ asset('images/clients/interbio.png') }}" alt=""></a></li>
-                                <li><a href="#" target="_blank"><img src="{{ asset('images/clients/bright.png') }}" alt=""></a></li>
+                                @if($clientGalleries->count() > 0)
+                                    <!-- Loop Logo Client Dinamis -->
+                                    @foreach($clientGalleries as $client)
+                                        <li><a href="#" target="_blank"><img src="{{ asset('storage/' . $client->image) }}" alt="Strategic Partner"></a></li>
+                                    @endforeach
+                                @else
+                                    <!-- Fallback Template Statis (Jika kosong) -->
+                                    <li><a href="#" target="_blank"><img src="{{ asset('images/clients/ajari.png') }}" alt=""></a></li>
+                                    <li><a href="#" target="_blank"><img src="{{ asset('images/clients/hydsoft.png') }}" alt=""></a></li>
+                                    <li><a href="#" target="_blank"><img src="{{ asset('images/clients/tech5.png') }}" alt=""></a></li>
+                                    <li><a href="#" target="_blank"><img src="{{ asset('images/clients/pat.png') }}" alt=""></a></li>
+                                    <li><a href="#" target="_blank"><img src="{{ asset('images/clients/interbio.png') }}" alt=""></a></li>
+                                    <li><a href="#" target="_blank"><img src="{{ asset('images/clients/bright.png') }}" alt=""></a></li>
+                                @endif
                             </ul>
                         </div>
                     </div>

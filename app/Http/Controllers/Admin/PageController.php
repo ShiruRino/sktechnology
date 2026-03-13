@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
 {
-    // Menampilkan form edit berdasarkan slug (misal: 'company-overview')
+    // Menampilkan form edit berdasarkan slug
     public function edit($slug)
     {
         $page = Page::where('slug', $slug)->firstOrFail();
@@ -22,30 +22,26 @@ class PageController extends Controller
     {
         $request->validate([
             'content' => 'required',
-            'image'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Untuk Background
-            'galleries.*' => 'image|mimes:jpeg,png,jpg|max:2048' // Untuk Slider
+            'image'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048', 
+            'galleries.*' => 'image|mimes:jpeg,png,jpg|max:2048', // Untuk Slider
+            'clients.*' => 'image|mimes:jpeg,png,jpg,svg,gif|max:2048' // Untuk Partner/Client Logos (mendukung SVG/GIF)
         ]);
 
         $page = Page::where('slug', $slug)->firstOrFail();
         $page->content = $request->content;
-        $page->save();
 
-        // 1. Simpan Background Image (Tipe: 'background')
+        // 1. Update Background Image Utama (type: 'background')
         if ($request->hasFile('image')) {
-            // Cek apakah halaman ini sudah punya background di tabel gallery
             $bgGallery = PageGallery::where('page_id', $page->id)->where('type', 'background')->first();
             
             if ($bgGallery) {
-                // Hapus file lama jika ada dan bukan bawaan template
                 if (!str_starts_with($bgGallery->image, 'images/')) {
                     Storage::disk('public')->delete($bgGallery->image);
                 }
-                // Update file baru
                 $bgGallery->update([
                     'image' => $request->file('image')->store('pages/background', 'public')
                 ]);
             } else {
-                // Buat baru jika belum ada
                 PageGallery::create([
                     'page_id' => $page->id,
                     'type' => 'background',
@@ -54,13 +50,27 @@ class PageController extends Controller
             }
         }
 
-        // 2. Simpan Multiple Image (Tipe: 'slider')
+        $page->save();
+
+        // 2. Simpan Multiple Image (Untuk Carousel/Slider di Timor Leste, type: 'slider')
         if ($request->hasFile('galleries')) {
             foreach ($request->file('galleries') as $file) {
                 $path = $file->store('pages/gallery', 'public');
                 PageGallery::create([
                     'page_id' => $page->id,
-                    'type' => 'slider', // Set tipe ke slider
+                    'type' => 'slider',
+                    'image' => $path
+                ]);
+            }
+        }
+
+        // 3. Simpan Multiple Image (Untuk Strategic Partners di Company Overview, type: 'client')
+        if ($request->hasFile('clients')) {
+            foreach ($request->file('clients') as $file) {
+                $path = $file->store('pages/clients', 'public');
+                PageGallery::create([
+                    'page_id' => $page->id,
+                    'type' => 'client', // Disimpan sebagai client
                     'image' => $path
                 ]);
             }
@@ -69,7 +79,7 @@ class PageController extends Controller
         return back()->with('success', 'Content updated successfully!');
     }
 
-    // Fungsi baru untuk menghapus 1 foto dari gallery (berlaku untuk background & slider)
+    // Fungsi hapus ini otomatis berlaku untuk background, slider, maupun client!
     public function deleteGallery($id)
     {
         $gallery = PageGallery::findOrFail($id);

@@ -17,13 +17,13 @@ class AuthController extends Controller
     // 2. Memproses data dari form login
     public function login(Request $request)
     {
-        // Validasi input form
+        // Validasi input form: Ubah 'email' menjadi 'username' dan hapus aturan 'email'
         $credentials = $request->validate([
-            'email'    => ['required', 'email'],
+            'username' => ['required', 'string'], 
             'password' => ['required'],
         ]);
 
-        // Cek kecocokan email dan password ke database
+        // Cek kecocokan username dan password ke database
         if (Auth::attempt($credentials)) {
             // Jika berhasil, buat ulang session untuk keamanan (mencegah session fixation)
             $request->session()->regenerate();
@@ -34,8 +34,8 @@ class AuthController extends Controller
 
         // Jika gagal, kembalikan ke halaman login dengan pesan error
         return back()->withErrors([
-            'email' => 'Maaf, email atau password yang Anda masukkan salah.',
-        ])->onlyInput('email');
+            'username' => 'Maaf, username atau password yang Anda masukkan salah.',
+        ])->onlyInput('username');
     }
 
     // 3. Memproses proses keluar (Logout)

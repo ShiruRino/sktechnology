@@ -87,25 +87,17 @@
                                 <div class="swiper-container">
                                     <div class="swiper-wrapper lightgallery">
                                         
-                                        @if($sliderGalleries->count() > 0)
-                                            <!-- Jika Admin sudah upload foto di Gallery Slider -->
-                                            @foreach($sliderGalleries as $gallery)
-                                            <div class="swiper-slide hov_zoom">
-                                                <img src="{{ asset('storage/' . $gallery->image) }}" alt="Gallery Image">
-                                                <a href="{{ asset('storage/' . $gallery->image) }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
-                                            </div>
-                                            @endforeach
-                                        @else
-                                            <!-- Fallback: Jika Gallery kosong, tampilkan gambar bawaan template agar desain tidak rusak -->
-                                            <div class="swiper-slide hov_zoom">
-                                                <img src="{{ asset('images/folio/timor2.jpg') }}" alt="">
-                                                <a href="{{ asset('images/folio/timor2.jpg') }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
-                                            </div>
-                                            <div class="swiper-slide hov_zoom">
-                                                <img src="{{ asset('images/folio/icon_timor.jpg') }}" alt="">
-                                                <a href="{{ asset('images/folio/icon_timor.jpg') }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
-                                            </div>
-                                        @endif
+                                        <!-- Jika Admin sudah upload / meload default ke database -->
+                                        @foreach($sliderGalleries as $gallery)
+                                        <div class="swiper-slide hov_zoom">
+                                            @php
+                                                // Mendeteksi apakah gambar berasal dari bawaan template (images/) atau upload baru (storage/)
+                                                $sliderImage = str_starts_with($gallery->image, 'images/') ? asset($gallery->image) : asset('storage/' . $gallery->image);
+                                            @endphp
+                                            <img src="{{ $sliderImage }}" alt="Gallery Image">
+                                            <a href="{{ $sliderImage }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
+                                        </div>
+                                        @endforeach
 
                                     </div>
                                 </div>

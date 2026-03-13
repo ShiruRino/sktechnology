@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('page_id')->constrained()->onDelete('cascade'); 
             $table->string('type')->default('slider'); // Tambahkan kolom ini ('background' atau 'slider')
             $table->string('image'); 
+            $table->string('link')->nullable()->default('#');
             $table->timestamps();
         });
     }

@@ -111,7 +111,11 @@
                                 @if($clientGalleries->count() > 0)
                                     <!-- Loop Logo Client Dinamis -->
                                     @foreach($clientGalleries as $client)
-                                        <li><a href="#" target="_blank"><img src="{{ asset('storage/' . $client->image) }}" alt="Strategic Partner"></a></li>
+                                        <li>
+                                            <a href="{{ $client->link ?? '#' }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $client->image) }}" alt="Strategic Partner">
+                                            </a>
+                                        </li>
                                     @endforeach
                                 @else
                                     <!-- Fallback Template Statis (Jika kosong) -->

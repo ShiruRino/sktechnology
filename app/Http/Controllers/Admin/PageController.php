@@ -75,6 +75,15 @@ class PageController extends Controller
                 ]);
             }
         }
+        if ($request->has('client_links')) {
+            foreach ($request->client_links as $id => $link) {
+                $gallery = PageGallery::find($id);
+                if ($gallery) {
+                    // Jika dikosongkan, kembalikan ke '#'
+                    $gallery->update(['link' => $link ? $link : '#']);
+                }
+            }
+        }
 
         return back()->with('success', 'Content updated successfully!');
     }

@@ -8,8 +8,10 @@
     <style>
         .gallery-item { position: relative; margin-bottom: 20px; }
         .gallery-item img { height: 120px; width: 100%; object-fit: cover; border-radius: 5px; border: 1px solid #ddd; }
-        /* Khusus untuk logo client agar ukurannya proporsional dan tidak terpotong */
-        .client-item img { height: 80px; width: 100%; object-fit: contain; background: #fff; padding: 5px; }
+        
+        /* Styling Khusus Client Item agar ada ruang untuk input link */
+        .client-wrapper { background: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
+        .client-item img { height: 80px; width: 100%; object-fit: contain; background: #fff; padding: 5px; border: none; margin-bottom: 0; }
         .new-badge { position: absolute; top: 5px; right: 5px; }
     </style>
 @stop
@@ -102,22 +104,28 @@
                 @if($page->slug == 'company-overview')
                 <div class="form-group mb-4 p-3" style="border: 1px dashed #17a2b8; border-radius: 5px; background-color: #f4fbfd;">
                     <label class="text-info"><i class="fas fa-handshake"></i> Strategic Partners / Clients Logos</label>
-                    <p class="text-muted" style="margin-bottom: 5px;"><small>Select multiple logo images to display in the partners section.</small></p>
+                    <p class="text-muted" style="margin-bottom: 5px;"><small>Select multiple logo images. After uploading, you can add a website link (URL) for each partner.</small></p>
                     
                     <!-- Input name="clients[]" khusus untuk partner -->
                     <input type="file" name="clients[]" id="clientInput" class="form-control" multiple>
                     
                     <div id="newClientPreviews" class="row mt-3"></div>
                     
-                    <label class="mt-4">Logos Currently Displayed:</label>
+                    <label class="mt-4">Logos & Links Currently Displayed:</label>
                     <div class="row mt-2">
                         @if($clientGalleries && $clientGalleries->count() > 0)
                             @foreach($clientGalleries as $gallery)
-                                <div class="col-md-2 col-sm-3 gallery-item client-item text-center">
-                                    <img src="{{ asset('storage/' . $gallery->image) }}" alt="Client Logo">
-                                    <a href="#" onclick="event.preventDefault(); if(confirm('Remove this partner logo?')) document.getElementById('delete-gallery-{{ $gallery->id }}').submit();" class="btn btn-sm btn-danger mt-1 btn-block">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                <div class="col-md-2 col-sm-3 gallery-item client-item">
+                                    <div class="client-wrapper text-center">
+                                        <img src="{{ asset('storage/' . $gallery->image) }}" alt="Client Logo">
+                                        
+                                        <!-- INPUT URL KHUSUS CLIENT (Default # jika kosong) -->
+                                        <input type="text" name="client_links[{{ $gallery->id }}]" class="form-control form-control-sm mt-2 mb-2" value="{{ $gallery->link ?? '#' }}" placeholder="https://...">
+                                        
+                                        <a href="#" onclick="event.preventDefault(); if(confirm('Remove this partner logo?')) document.getElementById('delete-gallery-{{ $gallery->id }}').submit();" class="btn btn-sm btn-danger btn-block">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </a>
+                                    </div>
                                 </div>
                             @endforeach
                         @else
@@ -234,7 +242,7 @@
                 const previewContainer = $('#newClientPreviews');
                 previewContainer.empty(); 
                 if (files && files.length > 0) {
-                    previewContainer.append('<div class="col-12 mb-2"><span class="text-info"><i class="fas fa-check"></i> <b>New logos selected:</b></span></div>');
+                    previewContainer.append('<div class="col-12 mb-2"><span class="text-info"><i class="fas fa-check"></i> <b>New logos selected (Links can be added after saving):</b></span></div>');
                     $.each(files, function(i, file) {
                         const reader = new FileReader();
                         reader.onload = function(event) {
